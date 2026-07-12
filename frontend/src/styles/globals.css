@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --studio-bg: #0e0e10;
+    --studio-surface: #18181b;
+    --studio-panel: #1c1c1f;
+    --studio-border: #2a2a2e;
+    --studio-muted: #3a3a40;
+    --studio-text: #e4e4e7;
+    --studio-text-muted: #71717a;
+    --studio-accent: #7c3aed;
+    --studio-accent-hover: #6d28d9;
+    --studio-success: #22c55e;
+    --studio-warning: #f59e0b;
+    --studio-error: #ef4444;
+    --studio-info: #3b82f6;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    @apply bg-studio-bg text-studio-text font-sans;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-studio-muted rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-studio-text-muted;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-studio-accent ring-offset-1 ring-offset-studio-bg;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-studio-accent/30 text-studio-text;
+  }
+}
+
+@layer components {
+  /* Panel header */
+  .panel-header {
+    @apply flex items-center gap-2 px-3 py-2 border-b border-studio-border;
+    @apply text-xs font-medium text-studio-text-muted uppercase tracking-wider;
+    min-height: 36px;
+  }
+
+  /* Resizable panel divider */
+  .panel-divider {
+    @apply bg-studio-border hover:bg-studio-accent/40 transition-colors;
+    @apply cursor-col-resize;
+    width: 1px;
+  }
+
+  .panel-divider:active {
+    @apply bg-studio-accent;
+  }
+
+  /* Node graph styles */
+  .react-flow__edge-path {
+    stroke: #71717a;
+    stroke-width: 1.5;
+  }
+
+  .react-flow__edge.selected .react-flow__edge-path,
+  .react-flow__edge:hover .react-flow__edge-path {
+    stroke: #7c3aed;
+    stroke-width: 2;
+  }
+
+  .react-flow__handle {
+    @apply border-2 border-studio-border;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .react-flow__handle-top {
+    top: -5px;
+  }
+
+  .react-flow__handle-bottom {
+    bottom: -5px;
+  }
+
+  .react-flow__handle-left {
+    left: -5px;
+  }
+
+  .react-flow__handle-right {
+    right: -5px;
+  }
+
+  .react-flow__handle.connectable:hover {
+    @apply border-studio-accent bg-studio-accent/30;
+  }
+
+  /* Timeline styles */
+  .timeline-track {
+    @apply relative h-10 border-b border-studio-border;
+    @apply hover:bg-studio-surface/50;
+  }
+
+  /* Shimmer loading */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--studio-surface) 25%,
+      var(--studio-muted) 50%,
+      var(--studio-surface) 75%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+}

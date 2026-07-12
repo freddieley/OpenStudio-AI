@@ -1,0 +1,14 @@
+{
+  "id": "example-plugin",
+  "name": "Example Plugin",
+  "version": "1.0.0",
+  "description": "Demonstrates the OpenStudio AI plugin system with a simple image invert node.",
+  "author": "OpenStudio AI",
+  "license": "MIT",
+  "entry_point": "example_plugin:ExamplePlugin",
+  "permissions": [],
+  "contributes": {
+    "nodes": ["example-invert-colors"]
+  },
+  "min_app_version": "0.1.0"
+}

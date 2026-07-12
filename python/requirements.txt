@@ -1,0 +1,68 @@
+# Core framework
+fastapi>=0.111.0,<1.0
+uvicorn[standard]>=0.30.0,<1.0
+pydantic>=2.7.0,<3.0
+pydantic-settings>=2.3.0,<3.0
+
+# Database
+aiosqlite>=0.20.0,<1.0
+
+# HTTP client
+httpx>=0.27.0,<1.0
+aiohttp>=3.9.0,<4.0
+
+# File handling
+aiofiles>=23.0.0,<25.0
+python-multipart>=0.0.9,<1.0
+
+# AI / ML core
+torch>=2.3.0
+torchvision>=0.18.0
+torchaudio>=2.3.0
+
+# Diffusion
+diffusers>=0.29.0,<1.0
+transformers>=4.42.0,<5.0
+accelerate>=0.31.0,<1.0
+safetensors>=0.4.3,<1.0
+
+# ONNX
+onnxruntime>=1.18.0,<2.0
+# onnxruntime-gpu>=1.18.0  # uncomment for GPU ONNX
+
+# Speech
+faster-whisper>=1.0.2,<2.0
+TTS>=0.22.0,<1.0  # Coqui TTS for voice cloning
+
+# Computer Vision
+opencv-python-headless>=4.10.0,<5.0
+Pillow>=10.3.0,<12.0
+
+# Video
+# ffmpeg-python>=0.2.0  # uncomment if ffmpeg binaries are present
+
+# Background removal
+rembg>=2.0.57,<3.0
+
+# Upscaling
+basicsr>=1.4.2,<2.0
+
+# Utilities
+numpy>=1.26.0,<3.0
+scipy>=1.13.0,<2.0
+tqdm>=4.66.0,<5.0
+requests>=2.32.0,<3.0
+huggingface-hub>=0.23.0,<1.0
+psutil>=5.9.0,<7.0
+
+# Async utilities
+anyio>=4.4.0,<5.0
+
+# Testing (dev)
+pytest>=8.2.0,<9.0
+pytest-asyncio>=0.23.0,<1.0
+httpx>=0.27.0,<1.0
+
+# Linting / typing (dev)
+mypy>=1.10.0,<2.0
+ruff>=0.4.0,<1.0

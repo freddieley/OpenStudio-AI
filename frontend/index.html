@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="OpenStudio AI — Local AI Content Creation Studio" />
+    <title>OpenStudio AI</title>
+    <!-- Prevent text selection on drag -->
+    <style>
+      * {
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      input, textarea, [contenteditable] {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+      /* Tauri drag region */
+      [data-tauri-drag-region] {
+        -webkit-app-region: drag;
+        app-region: drag;
+      }
+      [data-tauri-drag-region] * {
+        -webkit-app-region: no-drag;
+        app-region: no-drag;
+      }
+    </style>
+  </head>
+  <body class="bg-studio-bg text-studio-text antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

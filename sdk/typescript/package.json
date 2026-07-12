@@ -1,0 +1,17 @@
+{
+  "name": "@openstudio-ai/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for building OpenStudio AI plugins",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  }
+}

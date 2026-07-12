@@ -1,0 +1,98 @@
+{
+  "id": "transcribe-and-tts",
+  "name": "Transcribe Audio + Re-synthesize",
+  "description": "Transcribes audio with Whisper, then re-synthesizes it with a different voice.",
+  "version": "1.0.0",
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "workflowNode",
+      "position": { "x": 50, "y": 200 },
+      "data": {
+        "metadata": {
+          "id": "load-image",
+          "name": "Load Audio",
+          "category": "I/O",
+          "description": "Load an audio file",
+          "version": "1.0.0",
+          "author": "OpenStudio AI",
+          "color": "#64748b"
+        },
+        "inputs": [],
+        "outputs": [{ "id": "audio", "name": "Audio", "type": "audio" }],
+        "params": { "path": "" },
+        "label": "Load Audio"
+      }
+    },
+    {
+      "id": "n2",
+      "type": "workflowNode",
+      "position": { "x": 350, "y": 200 },
+      "data": {
+        "metadata": {
+          "id": "speech-transcribe",
+          "name": "Transcribe Audio",
+          "category": "Audio",
+          "description": "Transcribe audio to text",
+          "version": "1.0.0",
+          "author": "OpenStudio AI",
+          "color": "#22c55e"
+        },
+        "inputs": [
+          { "id": "audio", "name": "Audio", "type": "audio", "required": true }
+        ],
+        "outputs": [
+          { "id": "text", "name": "Text", "type": "text" },
+          { "id": "segments", "name": "Segments", "type": "array" }
+        ],
+        "params": { "language": "auto" },
+        "label": "Whisper Transcribe"
+      }
+    },
+    {
+      "id": "n3",
+      "type": "workflowNode",
+      "position": { "x": 650, "y": 200 },
+      "data": {
+        "metadata": {
+          "id": "tts-generate",
+          "name": "Text to Speech",
+          "category": "Audio",
+          "description": "Convert text to speech",
+          "version": "1.0.0",
+          "author": "OpenStudio AI",
+          "color": "#22c55e"
+        },
+        "inputs": [
+          { "id": "text", "name": "Text", "type": "text", "required": true }
+        ],
+        "outputs": [
+          { "id": "audio", "name": "Audio", "type": "audio" }
+        ],
+        "params": { "language": "en", "speed": 1.0 },
+        "label": "XTTS Synthesize"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "n1",
+      "sourceHandle": "audio",
+      "target": "n2",
+      "targetHandle": "audio",
+      "animated": true
+    },
+    {
+      "id": "e2",
+      "source": "n2",
+      "sourceHandle": "text",
+      "target": "n3",
+      "targetHandle": "text",
+      "animated": true
+    }
+  ],
+  "viewport": { "x": 0, "y": 0, "zoom": 1 },
+  "tags": ["audio", "whisper", "tts", "voice"],
+  "metadata": {}
+}

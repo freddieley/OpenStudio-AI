@@ -1,0 +1,107 @@
+{
+  "id": "basic-image-gen",
+  "name": "Basic Image Generation",
+  "description": "A simple text-to-image workflow using a single model.",
+  "version": "1.0.0",
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "workflowNode",
+      "position": { "x": 100, "y": 200 },
+      "data": {
+        "metadata": {
+          "id": "text-input",
+          "name": "Prompt",
+          "category": "Text",
+          "description": "Text input for the prompt",
+          "version": "1.0.0",
+          "author": "OpenStudio AI",
+          "color": "#eab308"
+        },
+        "inputs": [],
+        "outputs": [{ "id": "text", "name": "Text", "type": "text" }],
+        "params": { "text": "A breathtaking mountain landscape at golden hour, photorealistic, 8k" },
+        "label": "Prompt"
+      }
+    },
+    {
+      "id": "n2",
+      "type": "workflowNode",
+      "position": { "x": 450, "y": 200 },
+      "data": {
+        "metadata": {
+          "id": "image-generate",
+          "name": "Generate Image",
+          "category": "Image",
+          "description": "Generate an image using a diffusion model",
+          "version": "1.0.0",
+          "author": "OpenStudio AI",
+          "color": "#7c3aed"
+        },
+        "inputs": [
+          { "id": "prompt", "name": "Prompt", "type": "text", "required": true },
+          { "id": "model", "name": "Model", "type": "model", "required": true }
+        ],
+        "outputs": [
+          { "id": "image", "name": "Image", "type": "image" }
+        ],
+        "params": {
+          "model_id": "sdxl-base-1.0",
+          "width": 1024,
+          "height": 1024,
+          "steps": 25,
+          "cfg_scale": 7.5,
+          "seed": -1,
+          "sampler": "DPM++ 2M Karras",
+          "batch_size": 1
+        },
+        "label": "SDXL Generate"
+      }
+    },
+    {
+      "id": "n3",
+      "type": "workflowNode",
+      "position": { "x": 800, "y": 200 },
+      "data": {
+        "metadata": {
+          "id": "save-image",
+          "name": "Save Image",
+          "category": "I/O",
+          "description": "Save an image to disk",
+          "version": "1.0.0",
+          "author": "OpenStudio AI",
+          "color": "#64748b"
+        },
+        "inputs": [
+          { "id": "image", "name": "Image", "type": "image", "required": true }
+        ],
+        "outputs": [
+          { "id": "path", "name": "Saved Path", "type": "text" }
+        ],
+        "params": { "format": "png" },
+        "label": "Save"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "n1",
+      "sourceHandle": "text",
+      "target": "n2",
+      "targetHandle": "prompt",
+      "animated": true
+    },
+    {
+      "id": "e2",
+      "source": "n2",
+      "sourceHandle": "image",
+      "target": "n3",
+      "targetHandle": "image",
+      "animated": true
+    }
+  ],
+  "viewport": { "x": 0, "y": 0, "zoom": 1 },
+  "tags": ["image", "sdxl", "starter"],
+  "metadata": {}
+}
