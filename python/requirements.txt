@@ -32,7 +32,7 @@ onnxruntime>=1.18.0,<2.0
 
 # Speech
 faster-whisper>=1.0.2,<2.0
-TTS>=0.22.0,<1.0  # Coqui TTS for voice cloning
+coqui-tts>=0.25.0  # community fork of Coqui TTS — Python 3.12 compatible
 
 # Computer Vision
 opencv-python-headless>=4.10.0,<5.0
@@ -44,8 +44,8 @@ Pillow>=10.3.0,<12.0
 # Background removal
 rembg>=2.0.57,<3.0
 
-# Upscaling
-basicsr>=1.4.2,<2.0
+# Upscaling (basicsr requires special install on Python 3.12 — PIL fallback is used automatically)
+# basicsr>=1.4.2,<2.0  # optional: pip install basicsr --no-build-isolation
 
 # Utilities
 numpy>=1.26.0,<3.0
