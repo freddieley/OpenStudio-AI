@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "main-window",
+  "description": "Capabilities granted to the main application window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    "shell:allow-execute",
+    "dialog:default",
+    "fs:default",
+    "http:default",
+    "notification:default",
+    "os:default",
+    "process:default",
+    "clipboard-manager:default",
+    "global-shortcut:default",
+    "window-state:default",
+    "log:default"
+  ]
+}

@@ -69,7 +69,7 @@ pub async fn get_job(id: String, state: State<'_, AppState>) -> Result<JobRecord
 
 #[tauri::command]
 pub async fn cancel_job(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;

@@ -66,7 +66,7 @@ pub async fn install_plugin(
     source: String,
     state: State<'_, AppState>,
 ) -> Result<PluginRecord, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -81,7 +81,7 @@ pub async fn install_plugin(
 
 #[tauri::command]
 pub async fn uninstall_plugin(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -101,7 +101,7 @@ pub async fn uninstall_plugin(id: String, state: State<'_, AppState>) -> Result<
 
 #[tauri::command]
 pub async fn get_plugin_marketplace(state: State<'_, AppState>) -> Result<Vec<Value>, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;

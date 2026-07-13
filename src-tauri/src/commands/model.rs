@@ -79,7 +79,7 @@ pub async fn install_model(
     state: State<'_, AppState>,
 ) -> Result<String, String> {
     // Delegate the actual download/installation to the Python backend
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -107,7 +107,7 @@ pub async fn install_model(
 
 #[tauri::command]
 pub async fn uninstall_model(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -133,7 +133,7 @@ pub async fn get_model_install_progress(
     job_id: String,
     state: State<'_, AppState>,
 ) -> Result<Value, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -149,7 +149,7 @@ pub async fn cancel_model_install(
     job_id: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -164,18 +164,18 @@ pub async fn cancel_model_install(
 
 #[tauri::command]
 pub async fn refresh_model_registry(state: State<'_, AppState>) -> Result<Vec<Value>, String> {
-    let backend_guard = state.python_backend.lock();
-    let backend = backend_guard
-        .as_ref()
-        .ok_or("Python backend not available")?;
-
-    backend
-        .request("GET", "/api/models/registry/refresh", None)
-        .await
-        .map_err(|e| e.to_string())?;
+    {
+        let backend_guard = state.python_backend.lock().await;
+        let backend = backend_guard
+            .as_ref()
+            .ok_or("Python backend not available")?;
+        backend
+            .request("GET", "/api/models/registry/refresh", None)
+            .await
+            .map_err(|e| e.to_string())?;
+    } // backend_guard dropped here
 
     // Re-query the DB after refresh
-    drop(backend_guard);
     let db = state.db.lock();
     let db = db.as_ref().ok_or("Database not initialized")?;
     db.query_many("SELECT * FROM models ORDER BY name", &[])

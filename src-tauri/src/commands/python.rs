@@ -24,7 +24,7 @@ pub async fn proxy_request(
     request: ProxyRequest,
     state: State<'_, AppState>,
 ) -> Result<Value, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -37,46 +37,49 @@ pub async fn proxy_request(
 
 #[tauri::command]
 pub async fn get_backend_status(state: State<'_, AppState>) -> Result<BackendStatus, String> {
-    let backend_guard = state.python_backend.lock();
+    // Extract port in a block so the lock is released before the HTTP health check.
+    let port_opt = {
+        let guard = state.python_backend.lock().await;
+        guard.as_ref().map(|b| b.port())
+    };
 
-    match backend_guard.as_ref() {
-        None => Ok(BackendStatus {
-            running: false,
-            port: None,
+    let port = match port_opt {
+        None => {
+            return Ok(BackendStatus {
+                running: false,
+                port: None,
+                version: None,
+                healthy: false,
+            })
+        }
+        Some(p) => p,
+    };
+
+    // Lock released — perform the HTTP health check without holding it.
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(2))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let health_url = format!("http://localhost:{}/health", port);
+    match client.get(&health_url).send().await {
+        Ok(resp) if resp.status().is_success() => {
+            let body: Value = resp.json().await.unwrap_or(Value::Null);
+            Ok(BackendStatus {
+                running: true,
+                port: Some(port),
+                version: body
+                    .get("version")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string()),
+                healthy: true,
+            })
+        }
+        _ => Ok(BackendStatus {
+            running: true,
+            port: Some(port),
             version: None,
             healthy: false,
         }),
-        Some(backend) => {
-            let port = backend.port();
-            drop(backend_guard);
-
-            // Try a health check
-            let client = reqwest::Client::builder()
-                .timeout(std::time::Duration::from_secs(2))
-                .build()
-                .map_err(|e| e.to_string())?;
-
-            let health_url = format!("http://localhost:{}/health", port);
-            match client.get(&health_url).send().await {
-                Ok(resp) if resp.status().is_success() => {
-                    let body: Value = resp.json().await.unwrap_or(Value::Null);
-                    Ok(BackendStatus {
-                        running: true,
-                        port: Some(port),
-                        version: body
-                            .get("version")
-                            .and_then(|v| v.as_str())
-                            .map(|s| s.to_string()),
-                        healthy: true,
-                    })
-                }
-                _ => Ok(BackendStatus {
-                    running: true,
-                    port: Some(port),
-                    version: None,
-                    healthy: false,
-                }),
-            }
-        }
     }
 }

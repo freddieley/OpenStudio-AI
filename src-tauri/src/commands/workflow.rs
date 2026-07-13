@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use tauri::State;
 
@@ -9,7 +8,7 @@ pub async fn list_workflows(
     project_id: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -37,7 +36,7 @@ pub async fn save_workflow(
     workflow: Value,
     state: State<'_, AppState>,
 ) -> Result<Value, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -50,7 +49,7 @@ pub async fn save_workflow(
 
 #[tauri::command]
 pub async fn load_workflow(id: String, state: State<'_, AppState>) -> Result<Value, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -63,7 +62,7 @@ pub async fn load_workflow(id: String, state: State<'_, AppState>) -> Result<Val
 
 #[tauri::command]
 pub async fn delete_workflow(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;
@@ -82,7 +81,7 @@ pub async fn execute_workflow(
     params: Option<Value>,
     state: State<'_, AppState>,
 ) -> Result<String, String> {
-    let backend_guard = state.python_backend.lock();
+    let backend_guard = state.python_backend.lock().await;
     let backend = backend_guard
         .as_ref()
         .ok_or("Python backend not available")?;

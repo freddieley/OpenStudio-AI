@@ -8,7 +8,7 @@ use tokio::{
     process::{Child, Command},
     time::{sleep, timeout},
 };
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 const BACKEND_PORT: u16 = 8765;
 const STARTUP_TIMEOUT_SECS: u64 = 60;

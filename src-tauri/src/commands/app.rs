@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use tauri::State;
 
 use crate::state::AppState;
@@ -54,7 +54,7 @@ pub async fn get_system_info(state: State<'_, AppState>) -> Result<SystemInfo, S
     // Query GPU info via Python backend if available
     let mut gpu_info = Vec::new();
 
-    if let Some(backend) = state.python_backend.lock().as_ref() {
+    if let Some(backend) = state.python_backend.lock().await.as_ref() {
         if let Ok(response) = backend.request("GET", "/api/system/gpu", None).await {
             if let Some(gpus) = response.get("gpus").and_then(|g| g.as_array()) {
                 for gpu in gpus {

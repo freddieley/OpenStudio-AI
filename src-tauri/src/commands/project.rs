@@ -90,15 +90,17 @@ pub async fn create_project(
     )
     .map_err(|e| format!("Failed to write project manifest: {}", e))?;
 
-    let db = state.db.lock();
-    let db = db.as_ref().ok_or("Database not initialized")?;
-
-    db.execute(
-        "INSERT INTO projects (id, name, description, path, metadata)
-         VALUES (?1, ?2, ?3, ?4, ?5)",
-        &[&id, &input.name, &description, &input.path, &"{}"],
-    )
-    .map_err(|e| e.to_string())?;
+    // Block ensures the MutexGuard is dropped before `state` is moved into get_project.
+    {
+        let guard = state.db.lock();
+        let db = guard.as_ref().ok_or("Database not initialized")?;
+        db.execute(
+            "INSERT INTO projects (id, name, description, path, metadata)
+             VALUES (?1, ?2, ?3, ?4, ?5)",
+            &[&id, &input.name, &description, &input.path, &"{}"],
+        )
+        .map_err(|e| e.to_string())?;
+    } // guard + db reference dropped here — state is no longer borrowed
 
     get_project(id, state).await
 }

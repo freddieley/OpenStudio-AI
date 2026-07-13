@@ -9,16 +9,6 @@ mod state;
 pub use state::AppState;
 
 pub fn run() {
-    // Initialize structured logging
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "openstudio_ai_lib=debug,tauri=info".into()),
-        )
-        .with_target(true)
-        .compact()
-        .init();
-
     info!("OpenStudio AI starting up");
 
     tauri::Builder::default()
@@ -28,12 +18,27 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_global_shortcut::Builder::default().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_os::init())
-        .plugin(tauri_plugin_log::Builder::default().build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::Stdout,
+                ))
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::Webview,
+                ))
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::LogDir {
+                        file_name: Some("openstudio".into()),
+                    },
+                ))
+                .max_file_size(10_485_760)
+                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+                .build(),
+        )
         .manage(state::AppState::default())
         .setup(|app| {
             let handle = app.handle().clone();
@@ -61,7 +66,7 @@ pub fn run() {
                 match python::PythonBackend::start(&py_handle).await {
                     Ok(backend) => {
                         let state = py_handle.state::<AppState>();
-                        *state.python_backend.lock() = Some(backend);
+                        *state.python_backend.lock().await = Some(backend);
                         info!("Python backend started successfully");
                         // Show main window after backend is ready
                         if let Some(win) = py_handle.get_webview_window("main") {
@@ -134,12 +139,12 @@ pub fn run() {
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
                 let state = window.state::<AppState>();
-                // Shutdown Python backend gracefully
-                if let Some(backend) = state.python_backend.lock().take() {
-                    tauri::async_runtime::block_on(async move {
+                tauri::async_runtime::block_on(async move {
+                    // Shutdown Python backend gracefully
+                    if let Some(backend) = state.python_backend.lock().await.take() {
                         let _ = backend.shutdown().await;
-                    });
-                }
+                    }
+                });
             }
         })
         .run(tauri::generate_context!())

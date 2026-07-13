@@ -78,10 +78,24 @@ python -m venv .venv
 # source .venv/bin/activate  # Linux/macOS
 pip install -r requirements.txt
 cd ..
-
-# Run in development mode
-npm run dev
 ```
+
+### Running in Development
+
+Start three terminals **in order**:
+
+```bash
+# Terminal 1 — Python AI backend
+cd python && .venv\Scripts\activate && python main.py --dev
+
+# Terminal 2 — Vite frontend (wait for "ready on http://localhost:5173")
+cd frontend && npm run dev
+
+# Terminal 3 — Tauri shell (run from workspace root, after Vite is ready)
+cargo tauri dev
+```
+
+> **First compile:** downloads ~300 Rust crates and takes 5–15 minutes. Subsequent runs are ~10 seconds.
 
 ### Production Build
 

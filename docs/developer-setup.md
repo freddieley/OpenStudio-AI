@@ -61,24 +61,48 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ## Running in Development
 
+Start each of the three services in separate terminals **in this order**:
+
+**Terminal 1 — Python AI backend:**
 ```bash
-# Run everything at once
-npm run dev
-
-# Or run each service separately:
-# 1. Python backend
-cd python && python main.py --dev
-
-# 2. Frontend dev server
-cd frontend && npm run dev
-
-# 3. Tauri dev mode
-cargo tauri dev
+cd python
+# Windows
+.venv\Scripts\activate
+# Linux/macOS
+# source .venv/bin/activate
+python main.py --dev
+# → Backend ready on http://localhost:8765
 ```
 
-The frontend is available at `http://localhost:5173` during development.
-The Python backend listens on `http://localhost:8765`.
-The Tauri window connects to the Vite dev server.
+**Terminal 2 — Vite frontend dev server:**
+```bash
+cd frontend
+npm run dev
+# → Frontend ready on http://localhost:5173
+```
+
+**Terminal 3 — Tauri shell** (always from workspace root, after Vite is ready):
+```bash
+# Must run from the workspace root, NOT from src-tauri/
+cargo tauri dev
+# → Compiles Rust and opens the app window
+```
+
+> **First compile:** Tauri downloads and compiles ~300 crates on first run. This takes 5–15 minutes. Subsequent runs are incremental (~10 seconds).
+
+The Tauri window connects to the Vite dev server at `http://localhost:5173`. Hot-module replacement is active — frontend changes reflect immediately without restarting Tauri.
+
+### Verifying the backend is healthy
+
+```bash
+# Health check
+curl http://localhost:8765/health
+# → {"status":"ok","version":"0.1.0"}
+
+# Confirm model registry loaded
+curl http://localhost:8765/api/models
+# → {"models":[...],"total":9}
+```
 
 ---
 

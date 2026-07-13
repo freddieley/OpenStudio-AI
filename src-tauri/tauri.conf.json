@@ -71,41 +71,7 @@
   },
   "plugins": {
     "shell": {
-      "open": true,
-      "sidecar": true,
-      "scope": [
-        {
-          "name": "python-backend",
-          "cmd": "python",
-          "args": true,
-          "sidecar": false
-        }
-      ]
-    },
-    "updater": {
-      "active": true,
-      "dialog": true,
-      "endpoints": []
-    },
-    "log": {
-      "targets": [
-        {
-          "kind": "stdout",
-          "filter": "debug"
-        },
-        {
-          "kind": "webview",
-          "filter": "debug"
-        },
-        {
-          "kind": "folder",
-          "path": "$APPLOG/logs",
-          "fileName": "openstudio",
-          "maxFileSize": 10485760,
-          "filter": "info",
-          "rotateSize": 10485760
-        }
-      ]
+      "open": true
     }
   }
 }
