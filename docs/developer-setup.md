@@ -73,7 +73,7 @@ cd python && python main.py --dev
 cd frontend && npm run dev
 
 # 3. Tauri dev mode
-cd src-tauri && cargo tauri dev
+cargo tauri dev
 ```
 
 The frontend is available at `http://localhost:5173` during development.

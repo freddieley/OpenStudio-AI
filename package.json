@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=frontend & cd src-tauri && cargo tauri dev",
-    "build": "npm run build --workspace=frontend && cd src-tauri && cargo tauri build",
+    "build": "npm run build --workspace=frontend && cargo tauri build",
     "frontend:dev": "npm run dev --workspace=frontend",
     "frontend:build": "npm run build --workspace=frontend",
     "tauri:dev": "cd src-tauri && cargo tauri dev",
