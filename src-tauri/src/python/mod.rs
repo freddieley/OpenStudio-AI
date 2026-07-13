@@ -15,15 +15,48 @@ const STARTUP_TIMEOUT_SECS: u64 = 60;
 const HEALTH_CHECK_INTERVAL_MS: u64 = 500;
 
 /// Manages the Python FastAPI backend process.
+/// `process` is `None` when connecting to an externally-managed backend.
 pub struct PythonBackend {
-    process: Child,
+    process: Option<Child>,
     port: u16,
     client: Client,
 }
 
 impl PythonBackend {
-    /// Spawn the Python backend process and wait for it to become healthy.
+    /// Connect to the backend.
+    ///
+    /// If a healthy backend is already running on the preferred port (e.g. started
+    /// manually by the developer), attach to it without spawning a new process.
+    /// Otherwise spawn the backend as a child process and wait for it to be ready.
     pub async fn start(app: &AppHandle) -> Result<Self> {
+        let client = Client::builder()
+            .timeout(Duration::from_secs(30))
+            .build()?;
+
+        // Fast path: is there already a healthy backend on the default port?
+        let health_url = format!("http://localhost:{}/health", BACKEND_PORT);
+        if let Ok(resp) = timeout(
+            Duration::from_secs(1),
+            client.get(&health_url).send(),
+        )
+        .await
+        {
+            if let Ok(r) = resp {
+                if r.status().is_success() {
+                    info!(
+                        "Attaching to existing Python backend on port {}",
+                        BACKEND_PORT
+                    );
+                    return Ok(Self {
+                        process: None,
+                        port: BACKEND_PORT,
+                        client,
+                    });
+                }
+            }
+        }
+
+        // Slow path: spawn a new backend process.
         let port = Self::find_available_port(BACKEND_PORT).await?;
         let python_path = Self::resolve_python_path(app)?;
         let script_path = Self::resolve_script_path(app)?;
@@ -73,10 +106,6 @@ impl PythonBackend {
             });
         }
 
-        let client = Client::builder()
-            .timeout(Duration::from_secs(30))
-            .build()?;
-
         // Wait for the backend to become healthy
         let health_url = format!("http://localhost:{}/health", port);
         let deadline = tokio::time::Instant::now() + Duration::from_secs(STARTUP_TIMEOUT_SECS);
@@ -118,7 +147,7 @@ impl PythonBackend {
         }
 
         Ok(Self {
-            process: child,
+            process: Some(child),
             port,
             client,
         })
@@ -177,6 +206,7 @@ impl PythonBackend {
     }
 
     /// Gracefully shut down the Python backend.
+    /// Does nothing if the backend was externally managed (process = None).
     pub async fn shutdown(mut self) -> Result<()> {
         info!("Shutting down Python backend");
         let url = format!("http://localhost:{}/shutdown", self.port);
@@ -186,10 +216,10 @@ impl PythonBackend {
         )
         .await;
         sleep(Duration::from_millis(500)).await;
-        match self.process.try_wait() {
-            Ok(Some(_)) => {}
-            _ => {
-                let _ = self.process.kill().await;
+        if let Some(ref mut process) = self.process {
+            match process.try_wait() {
+                Ok(Some(_)) => {}
+                _ => { let _ = process.kill().await; }
             }
         }
         Ok(())
