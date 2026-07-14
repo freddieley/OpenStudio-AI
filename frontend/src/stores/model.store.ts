@@ -149,8 +149,8 @@ export const useModelStore = create<ModelStore>()(
 
     refreshRegistry: async () => {
       try {
-        await refreshModelRegistry();
-        await get().loadModels();
+        const models = await refreshModelRegistry();
+        set((state) => { state.models = models; });
         useAppStore.getState().addToast({ type: 'success', title: 'Model registry refreshed' });
       } catch (error) {
         useAppStore.getState().addToast({ type: 'error', title: 'Failed to refresh registry', description: String(error) });

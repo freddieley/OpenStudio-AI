@@ -4,6 +4,47 @@ This guide explains how to build plugins for OpenStudio AI using both the Python
 
 ---
 
+## Built-in Model Registry
+
+9 models are pre-registered at backend startup. No installation required to see them — open the **Model Manager** and they appear immediately. Click **Install** to download any of them.
+
+| ID | Name | Type | Size |
+|---|---|---|---|
+| `whisper-base` | Whisper Base | speech-recognition | 145 MB |
+| `whisper-large-v3` | Whisper Large v3 | speech-recognition | 1.55 GB |
+| `sdxl-base-1.0` | Stable Diffusion XL | image-generation | 6.9 GB |
+| `sdxl-turbo` | SDXL-Turbo | image-generation | 6.9 GB |
+| `flux-schnell` | FLUX.1 schnell | image-generation | 23.8 GB |
+| `real-esrgan-x4plus` | Real-ESRGAN x4+ | upscaling | 67 MB |
+| `u2net-rembg` | U-2-Net | background-removal | 176 MB |
+| `xtts-v2` | XTTS v2 | tts | 1.8 GB |
+| `llama-3.1-8b-gguf` | Llama 3.1 8B Q4 | llm | 4.9 GB |
+
+Add custom models to the registry by editing `python/core/model_manager.py` → `BUILTIN_REGISTRY`, or via a plugin.
+
+---
+
+## Workflow Nodes
+
+The node editor ships with these built-in node types (add via toolbar **Add Node** button or double-click the canvas):
+
+| Node ID | Name | Category |
+|---|---|---|
+| `text-input` | Text Input | Text |
+| `text-combine` | Combine Text | Text |
+| `llm-generate` | LLM Generate | Text |
+| `image-generate` | Generate Image | Image |
+| `image-upscale` | Upscale Image | Image |
+| `background-remove` | Remove Background | Image |
+| `speech-transcribe` | Transcribe Audio | Audio |
+| `tts-generate` | Text to Speech | Audio |
+| `video-interpolate` | Frame Interpolation | Video |
+| `lip-sync` | Lip Sync | Video |
+| `load-image` | Load Image | I/O |
+| `save-image` | Save Image | I/O |
+
+---
+
 ## What Plugins Can Do
 
 Plugins may register:

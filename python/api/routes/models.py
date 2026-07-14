@@ -1,8 +1,21 @@
-from typing import Optional
+import json
+from typing import Any, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 router = APIRouter()
+
+
+def _deserialize_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Parse JSON-string columns (tags, metadata) into proper objects."""
+    for field in ("tags", "metadata"):
+        val = row.get(field)
+        if isinstance(val, str):
+            try:
+                row[field] = json.loads(val)
+            except (json.JSONDecodeError, TypeError):
+                row[field] = [] if field == "tags" else {}
+    return row
 
 
 class InstallModelRequest(BaseModel):
@@ -18,7 +31,7 @@ async def list_models(
 ) -> dict:
     mm = request.app.state.model_manager
     models = await mm.list_models(model_type=model_type, installed_only=installed_only)
-    return {"models": models, "total": len(models)}
+    return {"models": [_deserialize_row(m) for m in models], "total": len(models)}
 
 
 @router.get("/{model_id}")
@@ -27,7 +40,7 @@ async def get_model(model_id: str, request: Request) -> dict:
     model = await mm.get_model(model_id)
     if not model:
         raise HTTPException(status_code=404, detail=f"Model '{model_id}' not found")
-    return model
+    return _deserialize_row(model)
 
 
 @router.post("/install")

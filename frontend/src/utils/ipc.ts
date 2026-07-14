@@ -41,16 +41,22 @@ export const deleteProject = (id: string): Promise<void> => invoke('delete_proje
 
 // ─── Models ───────────────────────────────────────────────────────────────────
 
-export const listModels = (params?: {
+export const listModels = async (params?: {
   modelType?: string;
   installedOnly?: boolean;
-}): Promise<Model[]> =>
-  invoke('list_models', {
-    modelType: params?.modelType ?? null,
-    installedOnly: params?.installedOnly ?? null,
-  });
+}): Promise<Model[]> => {
+  const query = new URLSearchParams();
+  if (params?.modelType) query.set('model_type', params.modelType);
+  if (params?.installedOnly) query.set('installed_only', 'true');
+  const qs = query.toString();
+  const response = await proxyRequest('GET', `/api/models${qs ? `?${qs}` : ''}`) as { models: Model[] };
+  return response.models ?? [];
+};
 
-export const getModel = (id: string): Promise<Model> => invoke('get_model', { id });
+export const getModel = async (id: string): Promise<Model> => {
+  const response = await proxyRequest('GET', `/api/models/${id}`) as Model;
+  return response;
+};
 
 export const installModel = (id: string, installPath?: string): Promise<string> =>
   invoke('install_model', { input: { id, install_path: installPath ?? null } });
@@ -63,25 +69,44 @@ export const getModelInstallProgress = (jobId: string): Promise<Record<string, u
 export const cancelModelInstall = (jobId: string): Promise<void> =>
   invoke('cancel_model_install', { jobId });
 
-export const refreshModelRegistry = (): Promise<Record<string, unknown>[]> =>
-  invoke('refresh_model_registry');
+export const refreshModelRegistry = async (): Promise<Model[]> => {
+  const response = await proxyRequest('GET', '/api/models/registry/refresh') as { models: Model[] };
+  return response.models ?? [];
+};
 
 // ─── Jobs ─────────────────────────────────────────────────────────────────────
 
-export const listJobs = (params?: {
+export const listJobs = async (params?: {
   status?: string;
   jobType?: string;
   limit?: number;
-}): Promise<Job[]> =>
-  invoke('list_jobs', {
-    status: params?.status ?? null,
-    jobType: params?.jobType ?? null,
-    limit: params?.limit ?? null,
-  });
+}): Promise<Job[]> => {
+  const query = new URLSearchParams();
+  if (params?.status) query.set('status', params.status);
+  if (params?.jobType) query.set('job_type', params.jobType);
+  if (params?.limit) query.set('limit', String(params.limit));
+  const qs = query.toString();
+  const response = await proxyRequest('GET', `/api/jobs${qs ? `?${qs}` : ''}`) as { jobs: Job[] };
+  // Python returns Unix timestamps (float seconds); convert to ISO strings
+  return (response.jobs ?? []).map((j) => ({
+    ...j,
+    created_at: typeof j.created_at === 'number' ? new Date(j.created_at * 1000).toISOString() : j.created_at,
+    started_at: typeof j.started_at === 'number' ? new Date(j.started_at * 1000).toISOString() : j.started_at,
+    completed_at: typeof j.completed_at === 'number' ? new Date(j.completed_at * 1000).toISOString() : j.completed_at,
+  }));
+};
 
-export const getJob = (id: string): Promise<Job> => invoke('get_job', { id });
+export const getJob = async (id: string): Promise<Job> => {
+  const j = await proxyRequest('GET', `/api/jobs/${id}`) as Job;
+  return {
+    ...j,
+    created_at: typeof j.created_at === 'number' ? new Date((j.created_at as unknown as number) * 1000).toISOString() : j.created_at,
+  };
+};
 
-export const cancelJob = (id: string): Promise<void> => invoke('cancel_job', { id });
+export const cancelJob = async (id: string): Promise<void> => {
+  await proxyRequest('POST', `/api/jobs/${id}/cancel`);
+};
 
 export const clearCompletedJobs = (): Promise<number> => invoke('clear_completed_jobs');
 
